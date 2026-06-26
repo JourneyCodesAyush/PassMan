@@ -1,0 +1,7 @@
+# Normalize all text files to use LF
+* text=auto eol=lf
+
+# Treat image files in assets/ as binary
+*.png binary
+*.jpg binary
+*.jpeg binary
