@@ -55,7 +55,13 @@ class PassManShell(cmd.Cmd):
 
     def do_add(self, arg: str):
         name = arg.strip()
+        if not name:
+            print("Empty field not allowed")
+            return
         plaintext_password: str = getpass.getpass("Password: ")
+        if not plaintext_password:
+            print("Password cannot be empty")
+            return
         vault.create(
             username=self.username,
             name=name,
@@ -65,6 +71,9 @@ class PassManShell(cmd.Cmd):
 
     def do_get(self, arg: str):
         name: str = arg.strip()
+        if not name:
+            print("Empty field not allowed")
+            return
         password = vault.read(username=self.username, name=name, key=self.key)
         if password is None:
             print(f"No password found for '{name}'")
@@ -73,13 +82,22 @@ class PassManShell(cmd.Cmd):
 
     def do_update(self, arg: str):
         name = arg.strip()
+        if not name:
+            print("Empty field not allowed")
+            return
         new_password = getpass.getpass("Password: ")
+        if not new_password:
+            print("Password cannot be empty")
+            return
         vault.update(
             username=self.username, name=name, new_password=new_password, key=self.key
         )
 
     def do_delete(self, arg: str):
         name = arg.strip()
+        if not name:
+            print("Empty field not allowed")
+            return
         vault.delete(username=self.username, name=name)
 
     do_a = do_add
@@ -96,8 +114,6 @@ def main():
     parser.add_argument("-u", "--user", default="", help="User logging in")
 
     args = parser.parse_args()
-    print(args)
-    print(args.user)
 
     init_db()
 
@@ -106,17 +122,24 @@ def main():
     if args.command == "signup":
         username = input("Username: ")
         plaintext_password: str = getpass.getpass("Password: ")
+        if not plaintext_password:
+            print("Password cannot be empty")
+            exit(1)
+
         signup_salt: str = signup(username=username, password=plaintext_password)
         key = derive_key(salt=signup_salt, master_password=plaintext_password)
 
     elif args.command is None and args.user != "":
         username = args.user
         plaintext_password: str = getpass.getpass("Password: ")
+        if not plaintext_password:
+            print("Password cannot be empty")
+            exit(1)
+
         login_salt: str | None = login(username=args.user, password=plaintext_password)
         if login_salt is None:
-            print("Something happened")
+            print("Invalid username or password")
             exit(1)
-            # pass
         key = derive_key(salt=login_salt, master_password=plaintext_password)
 
     else:
