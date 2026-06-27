@@ -2,6 +2,8 @@ import os
 import platform
 from pathlib import Path
 
+__all__ = ["get_app_data_dir"]
+
 
 def _get_windows_data() -> Path:
     """

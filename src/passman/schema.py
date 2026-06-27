@@ -1,5 +1,7 @@
 from passman.database import execute
 
+__all__ = ["init_db"]
+
 
 def init_db() -> None:
     _create_users_table()

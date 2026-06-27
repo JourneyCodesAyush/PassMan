@@ -3,6 +3,8 @@ from typing import Any
 
 from passman.utils import get_app_data_dir
 
+__all__ = ["execute", "fetchone", "fetchall"]
+
 DB_PATH: str = str(get_app_data_dir() / "vault.db")
 
 

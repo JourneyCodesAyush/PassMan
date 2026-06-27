@@ -3,6 +3,8 @@ import secrets
 from passman.database import execute, fetchone
 from passman.crypto import verify_password, hash_password
 
+__all__ = ["signup", "login"]
+
 
 def signup(username: str, password: str) -> str:
     salt: str = secrets.token_hex(32)

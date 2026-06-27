@@ -3,6 +3,8 @@ from typing import Any
 from passman.crypto import encrypt, decrypt
 from passman.database import execute, fetchone
 
+__all__ = ["create", "read", "update", "delete"]
+
 
 def create(username: str, name: str, plaintext_password: str, key: bytes) -> None:
     query: str = """INSERT INTO passwords (username, name, password) VALUES (?, ?, ?)"""

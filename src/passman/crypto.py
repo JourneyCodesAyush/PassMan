@@ -4,6 +4,8 @@ import base64
 
 from cryptography.fernet import Fernet
 
+__all__ = ["hash_password", "verify_password", "derive_key", "encrypt", "decrypt"]
+
 
 def hash_password(password: str) -> str:
     ph: PasswordHasher = PasswordHasher()
