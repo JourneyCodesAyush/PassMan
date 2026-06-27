@@ -1,7 +1,7 @@
 [project]
 name = "passman"
 version = "0.1.0"
-description = "A simple password manager"
+description = "A local-first CLI password manager with Argon2 hashing and Fernet encryption"
 readme = "README.md"
 authors = [
     { name = "JourneyCodesAyush", email = "journeycodes.ayush@gmail.com" }
