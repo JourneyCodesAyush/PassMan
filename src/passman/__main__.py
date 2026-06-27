@@ -45,9 +45,9 @@ class PassManShell(cmd.Cmd):
 
     def preloop(self) -> None:
         print("Commands:")
-        print("  (a)dd <name> <password>")
+        print("  (a)dd <name>")
         print("  (g)et <name>")
-        print("  (u)pdate <name> <new_password>")
+        print("  (u)pdate <name>")
         print("  (d)elete <name>")
         print("  (e)xit / (b)ye")
 
