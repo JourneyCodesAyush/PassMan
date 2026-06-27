@@ -58,10 +58,6 @@ class PassManShell(cmd.Cmd):
         print("Exiting...")
         return True
 
-    def do_exit(self, arg: str) -> bool:
-        print("Exiting...")
-        return True
-
     def do_add(self, arg: str):
         name = arg.strip()
         if not name:
@@ -113,6 +109,10 @@ class PassManShell(cmd.Cmd):
     do_g = do_get
     do_u = do_update
     do_d = do_delete
+
+    do_exit = do_bye
+    do_quit = do_bye
+    do_q = do_bye
 
 
 def main():
