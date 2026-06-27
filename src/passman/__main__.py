@@ -14,8 +14,17 @@ import passman.vault as vault
 
 
 class PassManShell(cmd.Cmd):
+    ASCII_ART = """
+██████╗  █████╗ ███████╗███████╗███╗   ███╗ █████╗ ███╗   ██╗
+██╔══██╗██╔══██╗██╔════╝██╔════╝████╗ ████║██╔══██╗████╗  ██║
+██████╔╝███████║███████╗███████╗██╔████╔██║███████║██╔██╗ ██║
+██╔═══╝ ██╔══██║╚════██║╚════██║██║╚██╔╝██║██╔══██║██║╚██╗██║
+██║     ██║  ██║███████║███████║██║ ╚═╝ ██║██║  ██║██║ ╚████║
+╚═╝     ╚═╝  ╚═╝╚══════╝╚══════╝╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝
+                                                                            
+"""
     intro: str = (
-        "Welcome to PassMan, your local only Passsword manager to help you keep your passwords safe from yourself :)"
+        ASCII_ART + "\nPassMan: keep your passwords local, encrypted, and yours."
     )
     prompt: str = "(passman) "
 
@@ -107,7 +116,9 @@ class PassManShell(cmd.Cmd):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="A simple plaintext_password manager")
+    parser = argparse.ArgumentParser(
+        description="A local-first CLI password manager with Argon2 hashing and Fernet encryption"
+    )
 
     subparsers = parser.add_subparsers(dest="command")
     subparsers.add_parser("signup", help="Create a new user")
