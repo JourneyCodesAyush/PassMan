@@ -1,6 +1,8 @@
 import argparse
 import getpass
 
+from importlib.metadata import version
+
 import cmd
 from typing import IO
 
@@ -127,6 +129,10 @@ def list_users() -> None:
 def main():
     parser = argparse.ArgumentParser(
         description="A local-first CLI password manager with Argon2 hashing and Fernet encryption"
+    )
+
+    parser.add_argument(
+        "-v", "--version", action="version", version=f"PassMan v{version('passman')}"
     )
 
     subparsers = parser.add_subparsers(dest="command")
