@@ -53,6 +53,7 @@ class PassManShell(cmd.Cmd):
         print("  (g)et <name>")
         print("  (u)pdate <name>")
         print("  (d)elete <name>")
+        print("  (l)ist")
         print("  (e)xit / (b)ye")
 
     def do_help(self, arg: str) -> bool | None:
@@ -109,10 +110,18 @@ class PassManShell(cmd.Cmd):
             return
         vault.delete(username=self.username, name=name)
 
+    def do_list(self, arg: str):
+        query: str = """SELECT name, password FROM passwords WHERE username=?"""
+        params: tuple[str,...] = (self.username,)
+        names = fetchall(query=query, params=params)
+        for name, _ in names:
+            print(name)
+
     do_a = do_add
     do_g = do_get
     do_u = do_update
     do_d = do_delete
+    do_l = do_list
 
     do_exit = do_bye
     do_quit = do_bye
