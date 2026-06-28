@@ -1,6 +1,6 @@
 [project]
 name = "passman"
-version = "0.1.0"
+version = "0.2.0"
 description = "A local-first CLI password manager with Argon2 hashing and Fernet encryption"
 readme = "README.md"
 authors = [
