@@ -55,6 +55,23 @@ Commands:
 
 ---
 
+## Data Storage
+
+PassMan stores all data locally in a SQLite database. No data ever leaves your machine.
+
+| Platform  | Location                                                                 |
+| --------- | ------------------------------------------------------------------------ |
+| Windows   | `%LOCALAPPDATA%\.passman\vault.db`                                       |
+| macOS     | `~/Library/Application Support/.passman/vault.db`                        |
+| Linux/BSD | `$XDG_DATA_HOME/.passman/vault.db` or `~/.local/share/.passman/vault.db` |
+
+> **Note:** Python bundles SQLite in its standard library — no separate SQLite installation is needed.
+
+> [!WARNING]
+> **There is no password recovery.** Your vault key is derived from your master password and never stored anywhere. If you forget your master password, your encrypted vault is permanently inaccessible. Back up your master password somewhere safe.
+
+---
+
 ## Motivation
 
 I read about Bitwarden, then KeePassX, and thought — how hard could it be to build one myself? Turns out, not that hard if you let the stdlib do the heavy lifting and let `argon2-cffi` and `cryptography` handle the hard parts.
