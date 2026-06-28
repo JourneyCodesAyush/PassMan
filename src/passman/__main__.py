@@ -8,6 +8,8 @@ from passman.auth import signup, login
 
 from passman.crypto import derive_key
 
+from passman.database import fetchall
+
 from passman.schema import init_db
 
 import passman.vault as vault
@@ -115,6 +117,13 @@ class PassManShell(cmd.Cmd):
     do_q = do_bye
 
 
+def list_users() -> None:
+    query: str = """SELECT * FROM users;"""
+    users = fetchall(query=query)
+    for username, _, _ in users:
+        print(username)
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="A local-first CLI password manager with Argon2 hashing and Fernet encryption"
@@ -122,6 +131,8 @@ def main():
 
     subparsers = parser.add_subparsers(dest="command")
     subparsers.add_parser("signup", help="Create a new user")
+    subparsers.add_parser("list", help="List all users")
+
     parser.add_argument("-u", "--user", default="", help="User logging in")
 
     args = parser.parse_args()
@@ -130,6 +141,10 @@ def main():
 
     username: str
     key: bytes
+    if args.command == "list":
+        list_users()
+        exit(0)
+
     if args.command == "signup":
         username = input("Username: ")
         plaintext_password: str = getpass.getpass("Password: ")
