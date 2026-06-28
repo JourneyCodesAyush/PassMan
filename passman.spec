@@ -5,6 +5,7 @@ a = Analysis(
     binaries=[],
     datas=[],
     hiddenimports=[
+        'importlib.metadata',
         'passman.auth',
         'passman.crypto',
         'passman.database',
