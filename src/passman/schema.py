@@ -22,6 +22,7 @@ def _create_users_password_table() -> None:
     username TEXT NOT NULL,
     name TEXT NOT NULL,
     password TEXT NOT NULL,
+    description TEXT,
     PRIMARY KEY (username, name)
     )"""
     execute(query=query)
