@@ -72,11 +72,15 @@ class PassManShell(cmd.Cmd):
         if not plaintext_password:
             print("Password cannot be empty")
             return
+
+        description = input("Add description: ")
+
         vault.create(
             username=self.username,
             name=name,
             plaintext_password=plaintext_password,
             key=self.key,
+            description=description or None,
         )
 
     def do_get(self, arg: str):
@@ -84,11 +88,14 @@ class PassManShell(cmd.Cmd):
         if not name:
             print("Empty field not allowed")
             return
-        password = vault.read(username=self.username, name=name, key=self.key)
-        if password is None:
+        result = vault.read(username=self.username, name=name, key=self.key)
+        if not result:
             print(f"No password found for '{name}'")
-        else:
-            print(f"{name}: {password}")
+            return
+        password, description = result
+        print(f"Name        : {name}")
+        print(f"Password    : {password}")
+        print(f"Description : {description if description else '-'}")
 
     def do_update(self, arg: str):
         name = arg.strip()
@@ -96,11 +103,17 @@ class PassManShell(cmd.Cmd):
             print("Empty field not allowed")
             return
         new_password = getpass.getpass("Password: ")
+        description = input("Update description: ")
+
         if not new_password:
             print("Password cannot be empty")
             return
         vault.update(
-            username=self.username, name=name, new_password=new_password, key=self.key
+            username=self.username,
+            name=name,
+            new_password=new_password,
+            key=self.key,
+            description=description or None,
         )
 
     def do_delete(self, arg: str):
@@ -111,11 +124,15 @@ class PassManShell(cmd.Cmd):
         vault.delete(username=self.username, name=name)
 
     def do_list(self, arg: str):
-        query: str = """SELECT name, password FROM passwords WHERE username=?"""
-        params: tuple[str,...] = (self.username,)
-        names = fetchall(query=query, params=params)
-        for name, _ in names:
-            print(name)
+        query: str = """SELECT name, description FROM passwords WHERE username=?"""
+        params: tuple[str, ...] = (self.username,)
+        rows = fetchall(query=query, params=params)
+        if not rows:
+            print("No passwords saved")
+            return
+        for name, description in rows:
+            desc = description if description else "-"
+            print(f"{name:<20} {desc}")
 
     do_a = do_add
     do_g = do_get
