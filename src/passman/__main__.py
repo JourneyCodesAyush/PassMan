@@ -1,6 +1,11 @@
 import argparse
 import getpass
 
+from pathlib import Path
+from datetime import datetime
+
+import json
+
 from importlib.metadata import version
 
 import cmd
@@ -54,6 +59,7 @@ class PassManShell(cmd.Cmd):
         print("  (u)pdate <name>")
         print("  (d)elete <name>")
         print("  (l)ist")
+        print("  export <path>")
         print("  (e)xit / (b)ye")
 
     def do_help(self, arg: str) -> bool | None:
@@ -133,6 +139,45 @@ class PassManShell(cmd.Cmd):
         for name, description in rows:
             desc = description if description else "-"
             print(f"{name:<20} {desc}")
+
+    def do_export(self, arg: str):
+        directory: str = arg.strip()
+        if not directory:
+            directory = str(Path.cwd())
+        if not Path(directory).is_dir():
+            print(f"'{directory}' does not exist")
+            return
+
+        now = datetime.now()
+        formatted_date: str = now.strftime("%d-%m-%Y")
+        formatted_time: str = now.strftime("%H-%M-%S")
+        output_file = (
+            Path(directory)
+            / f"passman-{self.username}-{formatted_date}-{formatted_time}.json"
+        )
+
+        query: str = """SELECT username, name FROM passwords WHERE username=?"""
+        params: tuple[str, ...] = (self.username,)
+        rows = fetchall(query=query, params=params)
+
+        if not rows:
+            print("No data found!")
+            return
+
+        passwords: list[dict[str, str]] = []
+        for _, name in rows:
+            result = vault.read(username=self.username, name=name, key=self.key)
+            if not result:
+                continue
+            password, description = result
+            passwords.append(
+                {"name": name, "password": password, "description": description}
+            )
+
+        with open(output_file, "w") as f:
+            json.dump(passwords, f, indent=2)
+
+        print(f"Passwords exported to {output_file}")
 
     do_a = do_add
     do_g = do_get
