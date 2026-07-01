@@ -2,6 +2,7 @@
 
 ![Python Version](https://img.shields.io/badge/python-3.14+-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
+![Latest Release](https://img.shields.io/github/v/tag/JourneyCodesAyush/passman?label=version)
 
 **passman** is a local-first CLI password manager that keeps your passwords encrypted and on your machine.
 
@@ -29,18 +30,29 @@ passman signup
 
 # Login as an existing user
 passman -u <username>
+
+# List all saved entry names without logging in
+passman list
+
+# Show the installed version
+passman -v
 ```
 
 Once logged in, you get an interactive REPL shell:
 
 ```txt
 Commands:
-  (a)dd <name>     — add a password (prompted securely)
-  (g)et <name>     — retrieve a password
-  (u)pdate <name>  — update a password (prompted securely)
-  (d)elete <name>  — delete a password
-  (e)xit / (b)ye   — exit the shell
+  (a)dd <name>               — add a password (prompted securely)
+  (g)et <name>               — retrieve a password
+  (u)pdate <name>            — update a password (prompted securely)
+  (d)elete <name>            — delete a password
+  (l)ist                     — list all saved entry names
+  export [path]              — export vault to a JSON file
+  import <path>              — import entries from a JSON file
+  (e)xit / (b)ye             — exit the shell
 ```
+
+Run `help <command>` inside the REPL for details on any command.
 
 ---
 
@@ -69,6 +81,34 @@ PassMan stores all data locally in a SQLite database. No data ever leaves your m
 
 > [!WARNING]
 > **There is no password recovery.** Your vault key is derived from your master password and never stored anywhere. If you forget your master password, your encrypted vault is permanently inaccessible. Back up your master password somewhere safe.
+
+> [!NOTE]
+> **Upgrading from before v0.4.0?** The `description` field was added to the `passwords` table in v0.4.0. Existing vaults need a one-time manual migration:
+>
+> ```sql
+> ALTER TABLE passwords ADD COLUMN description TEXT;
+> ```
+
+---
+
+## Export / Import
+
+Entries can be exported to a plaintext JSON file for backup or migration, and re-imported later:
+
+```json
+[
+  {
+    "name": "gmail",
+    "password": "decrypted_plaintext",
+    "description": "personal email"
+  }
+]
+```
+
+`description` is optional on import. If an imported name already exists in your vault, you'll be prompted per-conflict to skip or overwrite it.
+
+> [!WARNING]
+> Exported files contain **decrypted plaintext passwords**. Store and delete them carefully.
 
 ---
 
