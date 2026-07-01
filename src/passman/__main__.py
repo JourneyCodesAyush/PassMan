@@ -68,25 +68,13 @@ class PassManShell(cmd.Cmd):
         self.username: str = username
         self.key: bytes = key
 
-    def preloop(self) -> None:
-        print("Commands:")
-        print("  (a)dd <name>")
-        print("  (g)et <name>")
-        print("  (u)pdate <name>")
-        print("  (d)elete <name>")
-        print("  (l)ist")
-        print("  export <path>")
-        print("  import <path>")
-        print("  (e)xit / (b)ye")
-
-    def do_help(self, arg: str) -> bool | None:
-        return super().do_help(arg)
-
     def do_bye(self, arg: str) -> bool:
+        """Exit the shell."""
         print("Exiting...")
         return True
 
     def do_add(self, arg: str):
+        """Add a new password: (a)dd <name>"""
         name = arg.strip()
         if not name:
             print("Empty field not allowed")
@@ -107,6 +95,7 @@ class PassManShell(cmd.Cmd):
         )
 
     def do_get(self, arg: str):
+        """Retrieve a password: (g)et <name>"""
         name: str = arg.strip()
         if not name:
             print("Empty field not allowed")
@@ -121,6 +110,7 @@ class PassManShell(cmd.Cmd):
         print(f"Description : {description if description else '-'}")
 
     def do_update(self, arg: str):
+        """Update an existing password: (u)pdate <name>"""
         name = arg.strip()
         if not name:
             print("Empty field not allowed")
@@ -140,6 +130,7 @@ class PassManShell(cmd.Cmd):
         )
 
     def do_delete(self, arg: str):
+        """Delete a password: (d)elete <name>"""
         name = arg.strip()
         if not name:
             print("Empty field not allowed")
@@ -147,6 +138,7 @@ class PassManShell(cmd.Cmd):
         vault.delete(username=self.username, name=name)
 
     def do_list(self, arg: str):
+        """List all saved password names: (l)ist"""
         query: str = """SELECT name, description FROM passwords WHERE username=?"""
         params: tuple[str, ...] = (self.username,)
         rows = fetchall(query=query, params=params)
@@ -158,6 +150,7 @@ class PassManShell(cmd.Cmd):
             print(f"{name:<20} {desc}")
 
     def do_export(self, arg: str):
+        """Export passwords to a JSON file: export [path]"""
         directory: str = arg.strip()
         if not directory:
             directory = str(Path.cwd())
@@ -197,6 +190,7 @@ class PassManShell(cmd.Cmd):
         print(f"Passwords exported to {output_file}")
 
     def do_import(self, arg: str):
+        """Import passwords from a JSON file: import <path>"""
         filename = arg.strip()
 
         if not filename:
@@ -216,7 +210,7 @@ class PassManShell(cmd.Cmd):
 
         try:
             validate(instance=data, schema=self.json_schema)
-        except (ValidationError ,SchemaError) as e:
+        except (ValidationError, SchemaError) as e:
             print(f"Invalid JSON format in {filename} : {e.message}")
             return
 
