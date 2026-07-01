@@ -224,8 +224,22 @@ class PassManShell(cmd.Cmd):
             existing = vault.read(username=self.username, name=name, key=self.key)
 
             if existing is not None:
-                skipped += 1
-                continue
+                response = input(
+                    f"Entry with '{name}' already exists. Do you want to over-write it? [Y]es/[N]o: "
+                )
+                if not response:
+                    print("Invalid input.")
+                    skipped += 1
+                    continue
+                elif response.lower() in ("y", "yes"):
+                    vault.delete(username=self.username, name=name)
+                elif response.lower() in ("n", "no"):
+                    skipped += 1
+                    continue
+                else:
+                    print("Invalid input.")
+                    skipped += 1
+                    continue
 
             vault.create(
                 username=self.username,
