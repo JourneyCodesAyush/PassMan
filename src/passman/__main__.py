@@ -4,6 +4,8 @@ import getpass
 from pathlib import Path
 from datetime import datetime
 
+import shlex
+
 import json
 
 from importlib.metadata import version
@@ -23,6 +25,23 @@ from passman.database import fetchall
 from passman.schema import init_db
 
 import passman.vault as vault
+
+import passman.generator as generator
+
+
+class GenArgParser(argparse.ArgumentParser):
+    def error(self, message):
+        raise ValueError(message)
+
+
+def _build_gen_parser() -> GenArgParser:
+    parser = GenArgParser(prog="gen", add_help=False)
+    parser.add_argument("name")
+    parser.add_argument("description", nargs="?", default=None)
+    parser.add_argument("-l", "--length", type=int, default=16)
+    parser.add_argument("-S", "--no-symbols", action="store_true")
+    parser.add_argument("-D", "--no-digits", action="store_true")
+    return parser
 
 
 class PassManShell(cmd.Cmd):
@@ -253,6 +272,32 @@ class PassManShell(cmd.Cmd):
         print(
             f"Imported {imported} password(s), skipped {skipped} existing entr{'y' if skipped == 1 else 'ies'} from {filename}"
         )
+
+    def do_gen(self, arg: str):
+        """gen <name> [description] [-l LENGTH] [-S] [-D]"""
+        try:
+            args = _build_gen_parser().parse_args(shlex.split(arg))
+            if args.length < 8:
+                raise ValueError("Password length must be at least 8")
+
+            generated_password: str = generator.generate_password(
+                length=args.length,
+                use_symbols=not args.no_symbols,
+                use_digits=not args.no_digits,
+            )
+
+            vault.create(
+                username=self.username,
+                name=args.name,
+                plaintext_password=generated_password,
+                description=args.description,
+                key=self.key,
+            )
+            print(f"Generated and saved password for '{args.name}'")
+
+        except ValueError as e:
+            print(f"Error: {e}")
+            return
 
     do_a = do_add
     do_g = do_get
