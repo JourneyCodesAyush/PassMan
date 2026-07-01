@@ -11,6 +11,9 @@ from importlib.metadata import version
 import cmd
 from typing import IO
 
+from jsonschema import validate
+from jsonschema.exceptions import ValidationError, SchemaError
+
 from passman.auth import signup, login
 
 from passman.crypto import derive_key
@@ -40,6 +43,19 @@ class PassManShell(cmd.Cmd):
     username: str
     key: bytes
 
+    json_schema: dict = {
+        "type": "array",
+        "items": {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string"},
+                "password": {"type": "string"},
+                "description": {"type": "string"},
+            },
+            "required": ["name", "password"],
+        },
+    }
+
     def __init__(
         self,
         username: str,
@@ -60,6 +76,7 @@ class PassManShell(cmd.Cmd):
         print("  (d)elete <name>")
         print("  (l)ist")
         print("  export <path>")
+        print("  import <path>")
         print("  (e)xit / (b)ye")
 
     def do_help(self, arg: str) -> bool | None:
@@ -178,6 +195,56 @@ class PassManShell(cmd.Cmd):
             json.dump(passwords, f, indent=2)
 
         print(f"Passwords exported to {output_file}")
+
+    def do_import(self, arg: str):
+        filename = arg.strip()
+
+        if not filename:
+            print("Enter a valid filename")
+            return
+
+        if not (FILE := Path(filename)).exists():
+            print(f"'{filename}' does not exist")
+            return
+
+        if FILE.suffix != ".json":
+            print("Not a JSON file")
+            return
+
+        with open(FILE, "r") as f:
+            data = json.load(f)
+
+        try:
+            validate(instance=data, schema=self.json_schema)
+        except (ValidationError ,SchemaError) as e:
+            print(f"Invalid JSON format in {filename} : {e.message}")
+            return
+
+        skipped = 0
+        imported = 0
+        for entry in data:
+            name = entry.get("name")
+            password = entry.get("password")
+            description = entry.get("description")
+
+            existing = vault.read(username=self.username, name=name, key=self.key)
+
+            if existing is not None:
+                skipped += 1
+                continue
+
+            vault.create(
+                username=self.username,
+                name=name,
+                plaintext_password=password,
+                key=self.key,
+                description=description,
+            )
+            imported += 1
+
+        print(
+            f"Imported {imported} password(s), skipped {skipped} existing entr{'y' if skipped == 1 else 'ies'} from {filename}"
+        )
 
     do_a = do_add
     do_g = do_get
