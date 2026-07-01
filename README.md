@@ -8,6 +8,8 @@
 
 > Argon2 hashing, Fernet encryption, PBKDF2 key derivation — no cloud, no network, no trust required.
 
+![demo](assets/demo.png)
+
 ---
 
 ## Quick Start
