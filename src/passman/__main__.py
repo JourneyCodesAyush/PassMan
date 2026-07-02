@@ -251,7 +251,15 @@ class PassManShell(cmd.Cmd):
                     skipped += 1
                     continue
                 elif response.lower() in ("y", "yes"):
-                    vault.delete(username=self.username, name=name)
+                    vault.update(
+                        username=self.username,
+                        name=name,
+                        new_password=password,
+                        key=self.key,
+                        description=description,
+                    )
+                    imported += 1
+                    continue
                 elif response.lower() in ("n", "no"):
                     skipped += 1
                     continue
