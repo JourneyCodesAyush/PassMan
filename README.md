@@ -44,17 +44,30 @@ Once logged in, you get an interactive REPL shell:
 
 ```txt
 Commands:
-  (a)dd <name>               — add a password (prompted securely)
-  (g)et <name>               — retrieve a password
-  (u)pdate <name>            — update a password (prompted securely)
-  (d)elete <name>            — delete a password
-  (l)ist                     — list all saved entry names
-  export [path]              — export vault to a JSON file
-  import <path>              — import entries from a JSON file
-  (e)xit / (b)ye             — exit the shell
+  (a)dd <name>                — add a password (prompted securely)
+  (g)et <name>                — retrieve a password
+  (u)pdate <name>             — update a password (prompted securely)
+  (d)elete <name>             — delete a password
+  (l)ist                      — list all saved entry names
+  gen <name> [description]    — generate and save a random password
+  export [path]               — export vault to a JSON file
+  import <path>                — import entries from a JSON file
+  (e)xit / (b)ye              — exit the shell
 ```
 
 Run `help <command>` inside the REPL for details on any command.
+
+### `gen` options
+
+```txt
+gen <name> [description] [-l LENGTH] [-S] [-D]
+
+  -l, --length LENGTH   password length (default: 16, minimum: 8)
+  -S, --no-symbols      exclude symbols
+  -D, --no-digits       exclude digits
+```
+
+If an entry with the same name already exists, you'll be prompted to overwrite it before the new password is generated.
 
 ---
 
