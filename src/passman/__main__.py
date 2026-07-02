@@ -288,19 +288,37 @@ class PassManShell(cmd.Cmd):
             if args.length < 8:
                 raise ValueError("Password length must be at least 8")
 
+            existing = vault.read(username=self.username, name=args.name, key=self.key)
+
+            if existing is not None:
+                response = input(
+                    f"Entry with '{args.name}' already exists. Do you want to over-write it? [Y]es/[N]o: "
+                )
+                if response.lower() not in ("y", "yes"):
+                    print(f"Not generating password for '{args.name}'")
+                    return
+
             generated_password: str = generator.generate_password(
                 length=args.length,
                 use_symbols=not args.no_symbols,
                 use_digits=not args.no_digits,
             )
-
-            vault.create(
-                username=self.username,
-                name=args.name,
-                plaintext_password=generated_password,
-                description=args.description,
-                key=self.key,
-            )
+            if existing is not None:
+                vault.update(
+                    username=self.username,
+                    name=args.name,
+                    new_password=generated_password,
+                    description=args.description,
+                    key=self.key,
+                )
+            else:
+                vault.create(
+                    username=self.username,
+                    name=args.name,
+                    plaintext_password=generated_password,
+                    description=args.description,
+                    key=self.key,
+                )
             print(f"Generated and saved password for '{args.name}'")
 
         except ValueError as e:
