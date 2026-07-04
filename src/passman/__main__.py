@@ -30,11 +30,27 @@ import passman.generator as generator
 
 
 class GenArgParser(argparse.ArgumentParser):
+    """An ArgumentParser that raises ValueError on bad input instead of
+    calling sys.exit().
+
+    argparse's default error handling exits the whole process, which
+    would kill the REPL on something as small as a bad flag to `gen`.
+    Overriding `error()` lets `do_gen` catch the failure and continue
+    the shell session instead.
+    """
+
     def error(self, message):
         raise ValueError(message)
 
 
 def _build_gen_parser() -> GenArgParser:
+    """Build the argument parser used by the `gen` REPL command.
+
+    Returns:
+        A configured `GenArgParser` accepting a required `name`, an
+        optional positional `description`, and `-l/--length`,
+        `-S/--no-symbols`, `-D/--no-digits` flags.
+    """
     parser = GenArgParser(prog="gen", add_help=False)
     parser.add_argument("name")
     parser.add_argument("description", nargs="?", default=None)
@@ -337,6 +353,13 @@ class PassManShell(cmd.Cmd):
 
 
 def list_users() -> None:
+    """Print every registered username to stdout.
+
+    Used by the `passman list` one-shot subcommand — this is
+    intentionally the only vault-adjacent operation available
+    outside the authenticated REPL, since it reveals nothing more
+    sensitive than usernames.
+    """
     query: str = """SELECT * FROM users;"""
     users = fetchall(query=query)
     for username, _, _ in users:
@@ -344,6 +367,17 @@ def list_users() -> None:
 
 
 def main():
+    """CLI entry point.
+
+    Handles three top-level modes based on the parsed arguments:
+        - `passman signup`      — create a new user and drop into the REPL
+        - `passman -u <user>`   — log in as an existing user and drop into the REPL
+        - `passman list`        — print all usernames and exit (no login required)
+
+    Any uncaught exception raised during execution is caught by the
+    `if __name__ == "__main__"` guard at the bottom of this module and
+    printed as a plain message rather than a full traceback.
+    """
     parser = argparse.ArgumentParser(
         description="A local-first CLI password manager with Argon2 hashing and Fernet encryption"
     )

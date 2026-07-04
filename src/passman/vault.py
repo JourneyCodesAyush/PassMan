@@ -13,6 +13,16 @@ def create(
     key: bytes,
     description: str | None = None,
 ) -> None:
+    """Encrypt and store a new password entry for a user.
+
+    Args:
+        username: Owner of the entry.
+        name: Unique label for the entry (e.g. "gmail").
+        plaintext_password: The password to encrypt and store.
+        key: Fernet key derived from the user's master password.
+        description: Optional free-text note. Stored as an empty
+            string if not provided.
+    """
     query: str = (
         """INSERT INTO passwords (username, name, password, description) VALUES (?, ?, ?, ?)"""
     )
@@ -23,6 +33,17 @@ def create(
 
 
 def read(username: str, name: str, key: bytes) -> tuple[str, str] | None:
+    """Retrieve and decrypt a single password entry.
+
+    Args:
+        username: Owner of the entry.
+        name: Label of the entry to look up.
+        key: Fernet key derived from the user's master password.
+
+    Returns:
+        A `(decrypted_password, description)` tuple, or `None` if
+        no entry matches `username` and `name`.
+    """
     query: str = (
         """SELECT username, name, password, description FROM passwords WHERE username=? AND name=?"""
     )
@@ -41,6 +62,20 @@ def update(
     key: bytes,
     description: str | None = None,
 ) -> None:
+    """Re-encrypt and overwrite an existing password entry.
+
+    If `description` is omitted, the entry's current description is
+    preserved by reading it back before the update (this requires
+    decrypting the existing password as a side effect of the lookup).
+
+    Args:
+        username: Owner of the entry.
+        name: Label of the entry to update.
+        new_password: The new plaintext password to encrypt and store.
+        key: Fernet key derived from the user's master password.
+        description: Optional new description. Pass `None` to leave
+            the existing description unchanged.
+    """
     encrypted_password: str = encrypt(key=key, plaintext=new_password)
     query: str = (
         """UPDATE passwords SET password=?, description=? WHERE username=? AND name=?"""
@@ -55,6 +90,12 @@ def update(
 
 
 def delete(username: str, name: str) -> None:
+    """Permanently remove a password entry.
+
+    Args:
+        username: Owner of the entry.
+        name: Label of the entry to delete.
+    """
     query: str = """DELETE FROM passwords WHERE username=? AND name=?"""
     params: tuple[str, ...] = (username, name)
     execute(query=query, params=params)

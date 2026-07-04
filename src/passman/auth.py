@@ -7,6 +7,18 @@ __all__ = ["signup", "login"]
 
 
 def signup(username: str, password: str) -> str:
+    """Create a new user with a hashed master password and unique salt.
+
+    Args:
+        username: The desired username. Must be unique — inserting a
+            duplicate will raise `sqlite3.IntegrityError` since
+            `username` is the table's primary key.
+        password: The plaintext master password to hash and store.
+
+    Returns:
+        The newly generated salt, for immediate use in deriving the
+        session's encryption key via `crypto.derive_key`.
+    """
     salt: str = secrets.token_hex(32)
 
     query: str = """INSERT INTO users (username, password, salt) VALUES (?, ?, ?)"""
@@ -19,6 +31,19 @@ def signup(username: str, password: str) -> str:
 
 
 def login(username: str, password: str) -> str | None:
+    """Verify a login attempt against the stored Argon2 hash.
+
+    Args:
+        username: The username attempting to log in.
+        password: The plaintext master password entered.
+
+    Returns:
+        The user's stored salt if the username exists and the
+        password is correct, so the caller can derive the session's
+        encryption key. Returns `None` if the username doesn't exist
+        or the password is wrong — the two cases are indistinguishable
+        by design, to avoid leaking which one failed.
+    """
     query: str = """SELECT username, password, salt FROM users WHERE username=?"""
     params: tuple[str, ...] = (username,)
     result = fetchone(query=query, params=params)
