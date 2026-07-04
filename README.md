@@ -33,12 +33,18 @@ passman signup
 # Login as an existing user
 passman -u <username>
 
+# Permanently delete a user and all of their saved entries
+passman -d <username>
+
 # List all saved entry names without logging in
 passman list
 
 # Show the installed version
 passman -v
 ```
+
+> [!NOTE]
+> `-u`, `-d`, and the `signup`/`list` subcommands are mutually exclusive — you can only use one per invocation.
 
 Once logged in, you get an interactive REPL shell:
 
@@ -103,6 +109,9 @@ PassMan stores all data locally in a SQLite database. No data ever leaves your m
 > ```sql
 > ALTER TABLE passwords ADD COLUMN description TEXT;
 > ```
+
+> [!NOTE]
+> **Upgrading from before v0.7.0?** A `FOREIGN KEY` constraint linking `passwords.username` to `users.username` was added in v0.7.0. This is not applied retroactively to existing vaults, so orphaned entries from before this version (if any) are not automatically cleaned up or blocked.
 
 ---
 

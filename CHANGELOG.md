@@ -6,6 +6,27 @@ This changelog follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ---
 
+## v0.7.0
+
+### Added
+
+- `-d/--delete` flag to permanently delete a user and all of their saved password entries
+- `FOREIGN KEY` constraint on `passwords.username` referencing `users.username`, with per-connection enforcement (`PRAGMA foreign_keys = ON`)
+- `execute_transaction` helper for atomic multi-statement writes
+
+### Fixed
+
+- Combining `-u`/`--user` with a subcommand (`signup`/`list`) no longer silently picks one — now errors clearly
+- Exception handling in `main()` now works for the installed binary, not just direct/module invocation
+- Duplicate username on signup now raises a clear `ValueError` instead of leaking a raw SQL error
+- `verify_password` no longer silently swallows all exceptions — only catches the expected wrong-password case, letting corrupted-hash errors propagate
+
+### Changed
+
+- `vault.update()` now fetches the existing `description` directly via a separate query instead of decrypting the full entry through `read()`
+
+---
+
 ## v0.6.0
 
 ### Added
