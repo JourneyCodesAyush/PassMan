@@ -82,11 +82,11 @@ def update(
     )
 
     if description is None:
-        query: str = (
+        lookup_query: str = (
             """SELECT username, name, description FROM passwords WHERE username=? AND name=?"""
         )
-        params: tuple[str, ...] = (username, name)
-        existing = fetchone(query=query, params=params)
+        lookup_params: tuple[str, ...] = (username, name)
+        existing = fetchone(query=lookup_query, params=lookup_params)
         description = existing[2] if existing else ""
 
     assert isinstance(description, str)
