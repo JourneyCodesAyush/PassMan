@@ -136,11 +136,23 @@ Entries can be exported to a plaintext JSON file for backup or migration, and re
 
 ---
 
+## Running Tests
+
+PassMan uses `pytest` for its test suite, covering `crypto`, `generator`, `schema`, `database`, `auth`, and `vault`.
+
+```bash
+uv run pytest
+```
+
+Add `-v` for verbose output. Tests run against a throwaway temporary database for each test — your real vault at `~/.local/share/.passman/vault.db` (or the platform equivalent) is never touched.
+
+---
+
 ## Motivation
 
 I read about Bitwarden, then KeePassX, and thought — how hard could it be to build one myself? Turns out, not that hard if you let the stdlib do the heavy lifting and let `argon2-cffi` and `cryptography` handle the hard parts.
 
-`passman` has two runtime dependencies. Everything else is stdlib.
+`passman` depends on `argon2-cffi`, `cryptography`, and `jsonschema` for hashing, encryption, and import validation, respectively. Everything else is stdlib.
 
 ---
 
