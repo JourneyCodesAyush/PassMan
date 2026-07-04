@@ -6,6 +6,14 @@ This changelog follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ---
 
+## 0.7.1
+
+### Fixed
+
+- `vault.update()` no longer fails when called without an explicit `description` — a shadowed query variable caused the description-lookup SELECT to run with the UPDATE statement's parameter count, raising `sqlite3.ProgrammingError` on any update that omitted a description for an existing entry.
+
+---
+
 ## v0.7.0
 
 ### Added
