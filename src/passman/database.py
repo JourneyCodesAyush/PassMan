@@ -3,7 +3,7 @@ from typing import Any
 
 from passman.utils import get_app_data_dir
 
-__all__ = ["execute", "fetchone", "fetchall"]
+__all__ = ["execute", "fetchone", "fetchall", "execute_transaction"]
 
 DB_PATH: str = str(get_app_data_dir() / "vault.db")
 
@@ -63,3 +63,21 @@ def fetchall(query: str, params: tuple[str, ...] = ()) -> list[Any]:
     with _get_connection() as connection:
         response: sqlite3.Cursor = connection.execute(query, params)
         return response.fetchall()
+
+
+def execute_transaction(statements: list[tuple[str, tuple[str, ...]]]) -> int:
+    """Run multiple write queries atomically in a single transaction.
+
+    Args:
+        statements: A list of (query, params) pairs, executed in order
+            on one connection. If any statement raises, the whole
+            transaction rolls back -- no partial writes persist.
+
+    Returns:
+        The `rowcount` of the last statement executed.
+    """
+    with _get_connection() as connection:
+        cursor: sqlite3.Cursor = connection.cursor()
+        for query, params in statements:
+            cursor.execute(query, params)
+        return cursor.rowcount
