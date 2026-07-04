@@ -9,7 +9,8 @@ DB_PATH: str = str(get_app_data_dir() / "vault.db")
 
 
 def _get_connection() -> sqlite3.Connection:
-    """Open a new connection to the vault database.
+    """Open a new connection to the vault database, with foreign key
+    constraint enforcement enabled.
 
     Returns:
         A `sqlite3.Connection` pointed at `DB_PATH`. Callers are
@@ -17,6 +18,7 @@ def _get_connection() -> sqlite3.Connection:
         is committed/rolled back and closed automatically.
     """
     connection: sqlite3.Connection = sqlite3.connect(database=DB_PATH)
+    connection.execute("PRAGMA foreign_keys = ON")
     return connection
 
 
