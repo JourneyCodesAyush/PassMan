@@ -1,3 +1,5 @@
+import argon2.exceptions
+
 from argon2 import PasswordHasher
 import hashlib
 import base64
@@ -34,14 +36,19 @@ def verify_password(stored_hash: str, attempted: str) -> bool:
         attempted: The plaintext password entered at login.
 
     Returns:
-        `True` if `attempted` matches `stored_hash`, `False` on any
-        mismatch or verification error (invalid hash format, wrong
-        password, etc.).
+        `True` if `attempted` matches `stored_hash`.
+        `False` if the password is simply wrong.
+
+    Raises:
+        argon2.exceptions.InvalidHashError: If `stored_hash` is
+            malformed — indicates data corruption, not user error.
+        argon2.exceptions.VerificationError: If verification fails
+            for some other reason.
     """
     ph: PasswordHasher = PasswordHasher()
     try:
         return ph.verify(stored_hash, attempted)
-    except Exception:
+    except argon2.exceptions.VerifyMismatchError:
         return False
 
 
