@@ -65,8 +65,8 @@ def update(
     """Re-encrypt and overwrite an existing password entry.
 
     If `description` is omitted, the entry's current description is
-    preserved by reading it back before the update (this requires
-    decrypting the existing password as a side effect of the lookup).
+    preserved by querying it directly, without decrypting the
+    existing password.
 
     Args:
         username: Owner of the entry.
@@ -82,9 +82,14 @@ def update(
     )
 
     if description is None:
-        existing = read(username=username, name=name, key=key)
-        description = existing[1] if existing else ""
+        query: str = (
+            """SELECT username, name, description FROM passwords WHERE username=? AND name=?"""
+        )
+        params: tuple[str, ...] = (username, name)
+        existing = fetchone(query=query, params=params)
+        description = existing[2] if existing else ""
 
+    assert isinstance(description, str)
     params: tuple[str, ...] = (encrypted_password, description, username, name)
     execute(query=query, params=params)
 
