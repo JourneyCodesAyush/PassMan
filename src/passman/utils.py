@@ -49,7 +49,7 @@ def get_app_data_dir() -> Path:
     Cross-platform paths:
     - Windows: %LOCALAPPDATA%\\.passman
     - macOS: ~/Library/Application Support/.passman
-    - Linux/BSD: $XDG_DATA_HOME/passman or ~/.local/share/.passman
+    - Linux/BSD: $XDG_DATA_HOME/.passman or ~/.local/share/.passman
 
     Returns:
         Path: Path to PassMan app data directory
