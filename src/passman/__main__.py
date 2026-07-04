@@ -16,7 +16,7 @@ from typing import IO
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError, SchemaError
 
-from passman.auth import signup, login
+from passman.auth import signup, login, delete_user
 
 from passman.crypto import derive_key
 
@@ -369,10 +369,15 @@ def list_users() -> None:
 def main():
     """CLI entry point.
 
-    Handles three top-level modes based on the parsed arguments:
+    Handles four top-level modes based on the parsed arguments:
         - `passman signup`      — create a new user and drop into the REPL
         - `passman -u <user>`   — log in as an existing user and drop into the REPL
+        - `passman -d <user>`   — verify credentials, then permanently delete
+                                that user and all its saved entries
         - `passman list`        — print all usernames and exit (no login required)
+
+    `-u`, `-d`, and any subcommand (`signup`/`list`) are mutually exclusive;
+    combining them exits with a usage error before anything else runs.
 
     Any uncaught exception raised during execution is caught by the
     `if __name__ == "__main__"` guard at the bottom of this module and
@@ -394,22 +399,52 @@ def main():
         subparsers.add_parser("signup", help="Create a new user")
         subparsers.add_parser("list", help="List all users")
 
-        parser.add_argument("-u", "--user", default="", help="User logging in")
+        group = parser.add_mutually_exclusive_group()
+        group.add_argument("-u", "--user", default="", help="User logging in")
+        group.add_argument(
+            "-d",
+            "--delete",
+            default="",
+            help="Permanently delete an existing user and all its saved entries",
+        )
 
         args = parser.parse_args()
-
-        init_db()
-
-        username: str
-        key: bytes
-        if args.command == "list":
-            list_users()
-            exit(0)
 
         if args.command and args.user:
             parser.error(
                 f"argument -u/--user: not allowed with argument '{args.command}'"
             )
+        if args.command and args.delete:
+            parser.error(
+                f"argument -d/--delete: not allowed with argument '{args.command}'"
+            )
+
+        init_db()
+
+        username: str
+        key: bytes
+
+        if args.delete:
+            username = args.delete
+            plaintext_password: str = getpass.getpass("Password: ")
+            if not plaintext_password:
+                print("Password cannot be empty")
+                exit(1)
+            salt = login(username=username, password=plaintext_password)
+            if salt is None:
+                print("Invalid username or password")
+                exit(1)
+            successful: bool = delete_user(username=username)
+            if successful:
+                print(f"Successfully deleted '{username}'")
+                exit(0)
+            else:
+                print("Some error occurred")
+                exit(1)
+
+        if args.command == "list":
+            list_users()
+            exit(0)
 
         if args.command == "signup":
             username = input("Username: ")
