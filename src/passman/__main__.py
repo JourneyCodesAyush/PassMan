@@ -378,62 +378,68 @@ def main():
     `if __name__ == "__main__"` guard at the bottom of this module and
     printed as a plain message rather than a full traceback.
     """
-    parser = argparse.ArgumentParser(
-        description="A local-first CLI password manager with Argon2 hashing and Fernet encryption"
-    )
+    try:
+        parser = argparse.ArgumentParser(
+            description="A local-first CLI password manager with Argon2 hashing and Fernet encryption"
+        )
 
-    parser.add_argument(
-        "-v", "--version", action="version", version=f"PassMan v{version('passman')}"
-    )
+        parser.add_argument(
+            "-v",
+            "--version",
+            action="version",
+            version=f"PassMan v{version('passman')}",
+        )
 
-    subparsers = parser.add_subparsers(dest="command")
-    subparsers.add_parser("signup", help="Create a new user")
-    subparsers.add_parser("list", help="List all users")
+        subparsers = parser.add_subparsers(dest="command")
+        subparsers.add_parser("signup", help="Create a new user")
+        subparsers.add_parser("list", help="List all users")
 
-    parser.add_argument("-u", "--user", default="", help="User logging in")
+        parser.add_argument("-u", "--user", default="", help="User logging in")
 
-    args = parser.parse_args()
+        args = parser.parse_args()
 
-    init_db()
+        init_db()
 
-    username: str
-    key: bytes
-    if args.command == "list":
-        list_users()
-        exit(0)
+        username: str
+        key: bytes
+        if args.command == "list":
+            list_users()
+            exit(0)
 
-    if args.command == "signup":
-        username = input("Username: ")
-        plaintext_password: str = getpass.getpass("Password: ")
-        if not plaintext_password:
-            print("Password cannot be empty")
-            exit(1)
+        if args.command == "signup":
+            username = input("Username: ")
+            plaintext_password: str = getpass.getpass("Password: ")
+            if not plaintext_password:
+                print("Password cannot be empty")
+                exit(1)
 
-        signup_salt: str = signup(username=username, password=plaintext_password)
-        key = derive_key(salt=signup_salt, master_password=plaintext_password)
+            signup_salt: str = signup(username=username, password=plaintext_password)
+            key = derive_key(salt=signup_salt, master_password=plaintext_password)
 
-    elif args.command is None and args.user != "":
-        username = args.user
-        plaintext_password: str = getpass.getpass("Password: ")
-        if not plaintext_password:
-            print("Password cannot be empty")
-            exit(1)
+        elif args.command is None and args.user != "":
+            username = args.user
+            plaintext_password: str = getpass.getpass("Password: ")
+            if not plaintext_password:
+                print("Password cannot be empty")
+                exit(1)
 
-        login_salt: str | None = login(username=args.user, password=plaintext_password)
-        if login_salt is None:
-            print("Invalid username or password")
-            exit(1)
-        key = derive_key(salt=login_salt, master_password=plaintext_password)
+            login_salt: str | None = login(
+                username=args.user, password=plaintext_password
+            )
+            if login_salt is None:
+                print("Invalid username or password")
+                exit(1)
+            key = derive_key(salt=login_salt, master_password=plaintext_password)
 
-    else:
-        parser.print_help()
-        exit(0)
+        else:
+            parser.print_help()
+            exit(0)
 
-    PassManShell(username=username, key=key).cmdloop()
+        PassManShell(username=username, key=key).cmdloop()
+
+    except Exception as e:
+        print(f"{str(e)}")
 
 
 if __name__ == "__main__":
-    try:
-        main()
-    except Exception as e:
-        print(f"{str(e)}")
+    main()
