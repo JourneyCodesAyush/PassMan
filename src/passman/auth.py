@@ -1,3 +1,4 @@
+import sqlite3
 import secrets
 
 from passman.database import execute, fetchone
@@ -10,14 +11,15 @@ def signup(username: str, password: str) -> str:
     """Create a new user with a hashed master password and unique salt.
 
     Args:
-        username: The desired username. Must be unique — inserting a
-            duplicate will raise `sqlite3.IntegrityError` since
-            `username` is the table's primary key.
+        username: The desired username. Must be unique.
         password: The plaintext master password to hash and store.
 
     Returns:
         The newly generated salt, for immediate use in deriving the
         session's encryption key via `crypto.derive_key`.
+
+    Raises:
+        ValueError: If `username` is already taken.
     """
     salt: str = secrets.token_hex(32)
 
@@ -26,7 +28,11 @@ def signup(username: str, password: str) -> str:
     hashed: str = hash_password(password=password)
     params: tuple[str, ...] = (username, hashed, salt)
 
-    execute(query=query, params=params)
+    try:
+        execute(query=query, params=params)
+    except sqlite3.IntegrityError:
+        raise ValueError(f"Username '{username}' is already taken") from None
+
     return salt
 
 
