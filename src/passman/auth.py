@@ -1,10 +1,10 @@
 import sqlite3
 import secrets
 
-from passman.database import execute, fetchone
+from passman.database import execute, fetchone, execute_transaction
 from passman.crypto import verify_password, hash_password
 
-__all__ = ["signup", "login"]
+__all__ = ["signup", "login", "delete_user"]
 
 
 def signup(username: str, password: str) -> str:
@@ -63,3 +63,37 @@ def login(username: str, password: str) -> str | None:
             return result[2]
         else:
             return None
+
+
+def delete_user(username: str) -> bool:
+    """Permanently delete a user and all of their saved password entries.
+
+    Deletes `passwords` rows before the `users` row, in a single
+    transaction -- required because passwords.username carries a
+    FOREIGN KEY back to users.username with enforcement on; the reverse
+    order would raise FOREIGN KEY constraint failed for any user with
+    existing entries. Since both statements run in one transaction, a
+    failure partway through rolls back rather than leaving a
+    passwordless orphaned account.
+
+    Note: this function performs no password verification itself --
+    callers are expected to confirm the caller's identity (e.g. via
+    `login`) before invoking this.
+
+    Args:
+        username: The username of the account to delete.
+
+    Returns:
+        True if a user row was deleted, False if no matching user existed.
+    """
+    query1: str = """DELETE FROM passwords WHERE username=?"""
+    params1: tuple[str, ...] = (username,)
+
+    query2: str = """DELETE FROM users WHERE username=?"""
+    params2: tuple[str, ...] = (username,)
+
+    rows_affected = execute_transaction(
+        statements=[(query1, params1), (query2, params2)]
+    )
+
+    return rows_affected > 0
