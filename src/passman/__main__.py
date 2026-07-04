@@ -1,6 +1,6 @@
 import argparse
 import getpass
-
+import sys
 from pathlib import Path
 from datetime import datetime
 
@@ -429,29 +429,29 @@ def main():
             plaintext_password: str = getpass.getpass("Password: ")
             if not plaintext_password:
                 print("Password cannot be empty")
-                exit(1)
+                sys.exit(1)
             salt = login(username=username, password=plaintext_password)
             if salt is None:
                 print("Invalid username or password")
-                exit(1)
+                sys.exit(1)
             successful: bool = delete_user(username=username)
             if successful:
                 print(f"Successfully deleted '{username}'")
-                exit(0)
+                return
             else:
                 print("Some error occurred")
-                exit(1)
+                sys.exit(1)
 
         if args.command == "list":
             list_users()
-            exit(0)
+            return
 
         if args.command == "signup":
             username = input("Username: ")
             plaintext_password: str = getpass.getpass("Password: ")
             if not plaintext_password:
                 print("Password cannot be empty")
-                exit(1)
+                sys.exit(1)
 
             signup_salt: str = signup(username=username, password=plaintext_password)
             key = derive_key(salt=signup_salt, master_password=plaintext_password)
@@ -461,19 +461,19 @@ def main():
             plaintext_password: str = getpass.getpass("Password: ")
             if not plaintext_password:
                 print("Password cannot be empty")
-                exit(1)
+                sys.exit(1)
 
             login_salt: str | None = login(
                 username=args.user, password=plaintext_password
             )
             if login_salt is None:
                 print("Invalid username or password")
-                exit(1)
+                sys.exit(1)
             key = derive_key(salt=login_salt, master_password=plaintext_password)
 
         else:
             parser.print_help()
-            exit(0)
+            return
 
         PassManShell(username=username, key=key).cmdloop()
 
