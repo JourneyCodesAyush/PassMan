@@ -406,6 +406,11 @@ def main():
             list_users()
             exit(0)
 
+        if args.command and args.user:
+            parser.error(
+                f"argument -u/--user: not allowed with argument '{args.command}'"
+            )
+
         if args.command == "signup":
             username = input("Username: ")
             plaintext_password: str = getpass.getpass("Password: ")
