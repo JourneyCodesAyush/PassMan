@@ -148,6 +148,46 @@ Add `-v` for verbose output. Tests run against a throwaway temporary database fo
 
 ---
 
+## Contributing
+
+Contributions are welcome. Please follow these guidelines:
+
+- Fork the repository and create a branch: `fix/bug-name` or `test/area-name`
+- Follow the commit style: `type(scope): message`, describing the behavior or intent of the change rather than the diff itself
+- Run `uv run pytest -v` and `uv run ruff check .` / `uv run ruff format .` before submitting a pull request
+- Open a pull request with a clear description of your changes
+
+CI runs lint and tests automatically on every push and PR against `main` — a PR won't be mergeable until both pass.
+
+### Commit Types
+
+| Type  | Description                      |
+| ----- | -------------------------------- |
+| feat  | New features                     |
+| fix   | Bug fixes                        |
+| test  | Adding or updating tests         |
+| docs  | Documentation changes            |
+| chore | Maintenance, deps, version bumps |
+| ci    | CI/CD changes                    |
+
+### Commit Scopes
+
+| Scope     | Description                         |
+| --------- | ----------------------------------- |
+| auth      | Changes to signup/login/delete_user |
+| vault     | Changes to password entry CRUD      |
+| crypto    | Changes to hashing/encryption/keys  |
+| generator | Changes to password generation      |
+| schema    | Changes to table definitions        |
+| db        | Changes to database helpers         |
+| cli       | Changes to the CLI entry point      |
+| conftest  | Changes to shared test fixtures     |
+| pyproject | Changes to project/build config     |
+
+Omit the scope only when a commit bundles multiple unrelated files (e.g. release/version-bump commits).
+
+---
+
 ## Motivation
 
 I read about Bitwarden, then KeePassX, and thought — how hard could it be to build one myself? Turns out, not that hard if you let the stdlib do the heavy lifting and let `argon2-cffi` and `cryptography` handle the hard parts.
