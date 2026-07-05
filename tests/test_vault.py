@@ -1,8 +1,8 @@
 import pytest
 
+from passman import vault
 from passman.auth import signup
 from passman.crypto import derive_key
-from passman import vault
 
 
 @pytest.fixture

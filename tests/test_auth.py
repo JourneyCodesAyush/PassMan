@@ -1,7 +1,7 @@
 import pytest
 
 from passman.auth import delete_user, login, signup
-from passman.database import fetchone, execute
+from passman.database import execute, fetchone
 
 
 class TestSignup:

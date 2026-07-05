@@ -1,32 +1,23 @@
 import argparse
-import getpass
-import sys
-from pathlib import Path
-from datetime import datetime
-
-import shlex
-
-import json
-
-from importlib.metadata import version
-
 import cmd
+import getpass
+import json
+import shlex
+import sys
+from datetime import datetime
+from importlib.metadata import version
+from pathlib import Path
 from typing import IO
 
 from jsonschema import validate
-from jsonschema.exceptions import ValidationError, SchemaError
-
-from passman.auth import signup, login, delete_user
-
-from passman.crypto import derive_key
-
-from passman.database import fetchall
-
-from passman.schema import init_db
-
-import passman.vault as vault
+from jsonschema.exceptions import SchemaError, ValidationError
 
 import passman.generator as generator
+import passman.vault as vault
+from passman.auth import delete_user, login, signup
+from passman.crypto import derive_key
+from passman.database import fetchall
+from passman.schema import init_db
 
 
 class GenArgParser(argparse.ArgumentParser):
@@ -240,7 +231,7 @@ class PassManShell(cmd.Cmd):
             print("Not a JSON file")
             return
 
-        with open(FILE, "r") as f:
+        with open(FILE) as f:
             data = json.load(f)
 
         try:

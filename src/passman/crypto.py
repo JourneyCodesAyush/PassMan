@@ -1,9 +1,8 @@
-import argon2.exceptions
-
-from argon2 import PasswordHasher
-import hashlib
 import base64
+import hashlib
 
+import argon2.exceptions
+from argon2 import PasswordHasher
 from cryptography.fernet import Fernet
 
 __all__ = ["hash_password", "verify_password", "derive_key", "encrypt", "decrypt"]

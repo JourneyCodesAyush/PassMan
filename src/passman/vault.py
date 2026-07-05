@@ -1,6 +1,6 @@
 from typing import Any
 
-from passman.crypto import encrypt, decrypt
+from passman.crypto import decrypt, encrypt
 from passman.database import execute, fetchone
 
 __all__ = ["create", "read", "update", "delete"]
@@ -23,9 +23,7 @@ def create(
         description: Optional free-text note. Stored as an empty
             string if not provided.
     """
-    query: str = (
-        """INSERT INTO passwords (username, name, password, description) VALUES (?, ?, ?, ?)"""
-    )
+    query: str = """INSERT INTO passwords (username, name, password, description) VALUES (?, ?, ?, ?)"""
 
     encrypted_password: str = encrypt(key=key, plaintext=plaintext_password)
     params: tuple[str, ...] = (username, name, encrypted_password, description or "")
@@ -44,9 +42,7 @@ def read(username: str, name: str, key: bytes) -> tuple[str, str] | None:
         A `(decrypted_password, description)` tuple, or `None` if
         no entry matches `username` and `name`.
     """
-    query: str = (
-        """SELECT username, name, password, description FROM passwords WHERE username=? AND name=?"""
-    )
+    query: str = """SELECT username, name, password, description FROM passwords WHERE username=? AND name=?"""
     params: tuple[str, ...] = (username, name)
     result: Any = fetchone(query=query, params=params)
     if result is None:
@@ -82,9 +78,7 @@ def update(
     )
 
     if description is None:
-        lookup_query: str = (
-            """SELECT username, name, description FROM passwords WHERE username=? AND name=?"""
-        )
+        lookup_query: str = """SELECT username, name, description FROM passwords WHERE username=? AND name=?"""
         lookup_params: tuple[str, ...] = (username, name)
         existing = fetchone(query=lookup_query, params=lookup_params)
         description = existing[2] if existing else ""
