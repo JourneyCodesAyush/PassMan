@@ -1,5 +1,9 @@
 # PassMan
 
+<p align="center">
+  <img src="https://img.shields.io/badge/status-maintenance%20mode-FFA500?style=for-the-badge&logo=&logoColor=white" alt="Maintenance Mode">
+</p>
+
 ![Python Version](https://img.shields.io/badge/python-3.14+-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Latest Release](https://img.shields.io/github/v/tag/JourneyCodesAyush/passman?label=version)
